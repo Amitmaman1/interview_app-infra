@@ -56,7 +56,7 @@ module "external_secrets" {
   external_secrets_namespace  = var.external_secrets_namespace
   external_secrets_role_arn   = module.eso-irsa.external_secrets_role_arn
   common_tags                = var.common_tags
-  depends_on                 = [module.eks, module.eso-irsa]
+  depends_on                 = [module.eks, module.eso-irsa, module.alb_controller]
 }
 
 module "argocd" {
