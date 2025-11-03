@@ -111,3 +111,26 @@ resource "kubectl_manifest" "alertmanager_config" {
   wait = true
   server_side_apply = false
 }
+
+# Grafana Dashboard ConfigMap
+# The Grafana sidecar will automatically discover and load this dashboard
+resource "kubernetes_config_map" "grafana_dashboard" {
+  metadata {
+    name      = "killer-app-dashboard"
+    namespace = "monitoring"
+    
+    labels = {
+      grafana_dashboard = "1"
+    }
+    
+    annotations = {
+      grafana_folder = "Killer App"
+    }
+  }
+
+  data = {
+    "killer-app-dashboard.json" = file("${path.module}/dashboard.json")
+  }
+
+  depends_on = [helm_release.prometheus_stack]
+}

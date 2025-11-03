@@ -288,6 +288,27 @@ module "aws_load_balancer_controller_irsa" {
   tags = var.common_tags
 }
 
+# Cleanup resource - deletes Ingresses BEFORE destroying ALB controller
+# This ensures finalizers are removed while the controller is still running
+resource "null_resource" "alb_controller_cleanup" {
+  triggers = {
+    cluster_name = var.cluster_name
+  }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = <<-EOT
+      # Delete all Ingresses managed by ALB controller (while controller is still running)
+      kubectl delete ingress --all --all-namespaces --ignore-not-found=true --timeout=120s || true
+      
+      # Wait for ALB controller to clean up AWS resources
+      sleep 30
+    EOT
+  }
+
+  depends_on = [helm_release.aws_load_balancer_controller]
+}
+
 # Helm release for AWS Load Balancer Controller
 resource "helm_release" "aws_load_balancer_controller" {
   name       = "aws-load-balancer-controller"

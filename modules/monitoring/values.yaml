@@ -24,4 +24,14 @@ grafana:
   enabled: true
   adminPassword: "admin123"
   
+  # Enable sidecar to automatically load dashboards from ConfigMaps
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "1"
+      folder: /tmp/dashboards
+      folderAnnotation: grafana_folder
+      provider:
+        foldersFromFilesStructure: true
   
